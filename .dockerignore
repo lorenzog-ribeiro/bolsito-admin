@@ -1,0 +1,43 @@
+# Dependencies
+node_modules
+.pnpm-store
+
+# Build output
+.next
+out
+
+# Git
+.git
+.gitignore
+
+# IDE e editor
+.vscode
+.idea
+*.swp
+*.swo
+
+# Logs e cache
+*.log
+npm-debug.log*
+.pnpm-debug.log*
+
+# Ambiente local
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Testes e cobertura
+coverage
+.nyc_output
+*.test.*
+*.spec.*
+
+# Documentação
+README.md
+*.md
+
+# Misc
+.DS_Store
+Thumbs.db
