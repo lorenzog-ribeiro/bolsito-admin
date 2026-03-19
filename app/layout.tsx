@@ -1,8 +1,10 @@
 import type { Metadata, Viewport } from "next"
 import { Geist, Geist_Mono } from "next/font/google"
 import { Analytics } from "@vercel/analytics/next"
+import { Toaster } from "sonner"
 import "./globals.css"
 import { AuthProvider } from "@/lib/auth"
+import { TrackingProvider } from "@/components/tracking-provider"
 
 const _geist = Geist({ subsets: ["latin"] })
 const _geistMono = Geist_Mono({ subsets: ["latin"] })
@@ -29,7 +31,10 @@ export default function RootLayout({
   return (
     <html lang="pt-BR" className="light">
       <body className="font-sans antialiased">
-        <AuthProvider>{children}</AuthProvider>
+        <AuthProvider>
+          <TrackingProvider>{children}</TrackingProvider>
+        </AuthProvider>
+        <Toaster position="top-right" richColors closeButton />
         <Analytics />
       </body>
     </html>

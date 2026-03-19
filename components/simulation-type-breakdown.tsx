@@ -11,7 +11,7 @@ import {
   Cell,
 } from "recharts"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
-import { getOverviewStats, simulationTypeLabels, type SimulationType } from "@/lib/mock-data"
+import { Skeleton } from "@/components/ui/skeleton"
 
 const COLORS = [
   "oklch(0.60 0.15 170)",
@@ -19,23 +19,69 @@ const COLORS = [
   "oklch(0.70 0.18 45)",
   "oklch(0.60 0.12 290)",
   "oklch(0.65 0.14 140)",
+  "oklch(0.58 0.16 200)",
+  "oklch(0.62 0.14 320)",
+  "oklch(0.68 0.12 80)",
+  "oklch(0.56 0.18 260)",
+  "oklch(0.64 0.15 100)",
+  "oklch(0.52 0.14 180)",
+  "oklch(0.72 0.10 30)",
+  "oklch(0.60 0.16 220)",
 ]
 
-export function SimulationTypeBreakdown() {
-  const stats = getOverviewStats()
+interface BreakdownDataPoint {
+  tipo: string
+  total: number
+}
 
-  const data = (Object.entries(stats.byType) as [SimulationType, number][]).map(
-    ([key, value]) => ({
-      tipo: simulationTypeLabels[key],
-      total: value,
-    })
-  )
+interface SimulationTypeBreakdownProps {
+  data?: BreakdownDataPoint[]
+  isLoading?: boolean
+  title?: string
+  description?: string
+}
+
+export function SimulationTypeBreakdown({
+  data,
+  isLoading = false,
+  title = "Simulacoes por Tipo",
+  description = "Distribuicao entre os tipos de simulacao"
+}: SimulationTypeBreakdownProps) {
+  if (isLoading) {
+    return (
+      <Card>
+        <CardHeader>
+          <Skeleton className="h-5 w-40" />
+          <Skeleton className="h-4 w-56 mt-1" />
+        </CardHeader>
+        <CardContent>
+          <Skeleton className="h-[300px] w-full" />
+        </CardContent>
+      </Card>
+    )
+  }
+
+  if (!data || data.length === 0) {
+    return (
+      <Card>
+        <CardHeader>
+          <CardTitle>{title}</CardTitle>
+          <CardDescription>{description}</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="h-[300px] w-full flex items-center justify-center text-muted-foreground">
+            Nenhum dado disponivel
+          </div>
+        </CardContent>
+      </Card>
+    )
+  }
 
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Simulacoes por Tipo</CardTitle>
-        <CardDescription>Distribuicao entre os tipos de simulacao</CardDescription>
+        <CardTitle>{title}</CardTitle>
+        <CardDescription>{description}</CardDescription>
       </CardHeader>
       <CardContent>
         <div className="h-[300px] w-full">
@@ -62,11 +108,14 @@ export function SimulationTypeBreakdown() {
               />
               <Tooltip
                 contentStyle={{
-                  backgroundColor: "oklch(0.16 0.015 230)",
-                  border: "1px solid oklch(0.24 0.02 230)",
+                  backgroundColor: "#1a1a1a",
+                  border: "1px solid #333",
                   borderRadius: "8px",
-                  color: "oklch(0.92 0.01 210)",
-                  fontSize: 12,
+                  color: "#ffffff",
+                  fontSize: 14,
+                  fontWeight: 500,
+                  padding: "8px 12px",
+                  boxShadow: "0 4px 12px rgb(0 0 0 / 0.3)",
                 }}
               />
               <Bar dataKey="total" radius={[4, 4, 0, 0]}>

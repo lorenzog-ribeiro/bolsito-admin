@@ -12,6 +12,7 @@ import {
   Trophy,
   Database,
   Image,
+  BarChart3,
 } from "lucide-react"
 import { useAuth } from "@/lib/auth"
 import {
@@ -32,6 +33,11 @@ const navItems = [
     title: "Visao Geral",
     href: "/",
     icon: LayoutDashboard,
+  },
+  {
+    title: "Analytics",
+    href: "/analytics",
+    icon: BarChart3,
   },
   {
     title: "Simuladores",

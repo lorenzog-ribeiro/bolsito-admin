@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react"
 import { Shield, Key, Loader2, UserCog, Trash2, Pencil } from "lucide-react"
+import { toast } from "sonner"
 import { AdminHeader } from "@/components/admin-header"
 import { AdminGuard } from "@/components/admin-guard"
 import { useAuth } from "@/lib/auth"
@@ -117,8 +118,11 @@ function UserDetailDialog({
       )
       setLocalUser((u) => ({ ...u, ...updated }))
       onUpdated()
+      toast.success("Permissao atualizada")
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Erro ao atualizar")
+      const msg = err instanceof Error ? err.message : "Erro ao atualizar"
+      setError(msg)
+      toast.error(msg)
     }
   }
 
@@ -130,8 +134,11 @@ function UserDetailDialog({
       setShowPasswordForm(false)
       form.reset()
       onUpdated()
+      toast.success("Senha alterada com sucesso")
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Erro ao alterar senha")
+      const msg = err instanceof Error ? err.message : "Erro ao alterar senha"
+      setError(msg)
+      toast.error(msg)
     } finally {
       setLoading(false)
     }
@@ -331,8 +338,11 @@ function BulkEditDialog({
       setIsStaff(null)
       setIsSuperuser(null)
       setIsActive(null)
+      toast.success(`${selectedUsers.length} usuario(s) atualizado(s)`)
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Erro ao atualizar")
+      const msg = err instanceof Error ? err.message : "Erro ao atualizar"
+      setError(msg)
+      toast.error(msg)
     } finally {
       setLoading(false)
     }
@@ -490,8 +500,11 @@ function ChangeOwnPasswordDialog({
       )
       form.reset()
       onOpenChange(false)
+      toast.success("Sua senha foi alterada com sucesso")
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Erro ao alterar senha")
+      const msg = err instanceof Error ? err.message : "Erro ao alterar senha"
+      setError(msg)
+      toast.error(msg)
     } finally {
       setLoading(false)
     }
@@ -610,6 +623,7 @@ export default function PermissoesPage() {
     setDeleting(true)
     try {
       await deleteUser(userToDelete.id, token)
+      toast.success("Usuario excluido com sucesso")
       setUserToDelete(null)
       setSelectedIds((prev) => {
         const next = new Set(prev)
@@ -618,7 +632,9 @@ export default function PermissoesPage() {
       })
       listAdminUsers(token).then(setUsers)
     } catch (err) {
-      setDeleteError(err instanceof Error ? err.message : "Erro ao excluir usuário")
+      const msg = err instanceof Error ? err.message : "Erro ao excluir usuario"
+      setDeleteError(msg)
+      toast.error(msg)
     } finally {
       setDeleting(false)
     }
@@ -655,11 +671,14 @@ export default function PermissoesPage() {
     setDeletingBulk(true)
     try {
       await Promise.all(usersToDeleteBulk.map((u) => deleteUser(u.id, token)))
+      toast.success(`${usersToDeleteBulk.length} usuario(s) excluido(s)`)
       setUsersToDeleteBulk(null)
       setSelectedIds(new Set())
       listAdminUsers(token).then(setUsers)
     } catch (err) {
-      setDeleteError(err instanceof Error ? err.message : "Erro ao excluir usuários")
+      const msg = err instanceof Error ? err.message : "Erro ao excluir usuarios"
+      setDeleteError(msg)
+      toast.error(msg)
     } finally {
       setDeletingBulk(false)
     }

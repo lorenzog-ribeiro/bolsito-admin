@@ -6,6 +6,7 @@ import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { z } from "zod"
 import { FileBarChart2, Loader2 } from "lucide-react"
+import { toast } from "sonner"
 import { useAuth } from "@/lib/auth"
 import { Button } from "@/components/ui/button"
 import {
@@ -51,11 +52,12 @@ export default function LoginPage() {
     setError(null)
     try {
       await login(values.email, values.password)
+      toast.success("Login realizado com sucesso")
       router.replace("/")
     } catch (err) {
-      setError(
-        err instanceof Error ? err.message : "Credenciais inválidas. Tente novamente."
-      )
+      const msg = err instanceof Error ? err.message : "Credenciais invalidas. Tente novamente."
+      setError(msg)
+      toast.error(msg)
     }
   }
 

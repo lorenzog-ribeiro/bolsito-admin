@@ -1,5 +1,6 @@
 import { apiFetch } from "./api"
 
+// Todos os tipos de simuladores (para estatisticas)
 export const SIMULATOR_TYPES = [
   "AMORTIZACAO",
   "APOSENTADORIA",
@@ -14,6 +15,17 @@ export const SIMULATOR_TYPES = [
   "COMPARADOR_ASSINATURA_CARRO",
   "TAXA_MAQUININHA",
   "COMPARADOR_MAQUININHA",
+] as const
+
+// Apenas simuladores que possuem parametros configuráveis no banco
+export const SIMULATOR_TYPES_WITH_PARAMS = [
+  "EMPRESTIMO",
+  "FINANCIAMENTO_IMOVEL",
+  "FINANCIAMENTO_VEICULOS",
+  "TAXA_MAQUININHA",
+  "COMPARADOR_MAQUININHA",
+  "APOSENTADORIA",
+  "AMORTIZACAO",
 ] as const
 
 export const SIMULATOR_LABELS: Record<string, string> = {
@@ -89,6 +101,16 @@ export function createDashboardApi(token: string) {
     rankingParams: (type: string) =>
       apiFetch<unknown>(`/dashboard/rankings/${type}/params`, { token }),
 
+    updateRankingParam: (
+      type: string,
+      id: string,
+      body: Record<string, unknown>
+    ) =>
+      apiFetch<unknown>(
+        `/dashboard/rankings/${type}/params/${id}`,
+        { method: "PATCH", body: JSON.stringify(body), token }
+      ),
+
     simulationsStats: (params?: { startDate?: string; endDate?: string }) => {
       const q = new URLSearchParams()
       if (params?.startDate) q.set("startDate", params.startDate)
@@ -137,5 +159,37 @@ export function createDashboardApi(token: string) {
 
     images: () =>
       apiFetch<ImageItem[]>("/dashboard/images", { token }),
+
+    // Blog Tracking Stats
+    blogTrackingStats: (params?: { startDate?: string; endDate?: string }) => {
+      const q = new URLSearchParams()
+      if (params?.startDate) q.set("startDate", params.startDate)
+      if (params?.endDate) q.set("endDate", params.endDate)
+      const query = q.toString()
+      return apiFetch<BlogTrackingStats>(
+        `/tracking/stats${query ? `?${query}` : ""}`,
+        { token }
+      )
+    },
   }
+}
+
+export interface BlogTrackingStats {
+  totalPageViews: number
+  totalSessions: number
+  avgSessionDuration: number
+  topPages: { path: string; views: number; avgTime: number }[]
+  topArticles: { slug: string; title: string; views: number }[]
+  pageViewsByDay: { date: string; count: number }[]
+  eventsByType: Record<string, number>
+  simulatorUsage: { type: string; starts: number; completions: number }[]
+  searchQueries: { query: string; count: number }[]
+  recentEvents: {
+    type: string
+    timestamp: string
+    path: string
+    title?: string
+    duration?: number
+    metadata?: Record<string, unknown>
+  }[]
 }

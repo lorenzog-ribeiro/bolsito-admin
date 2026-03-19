@@ -2,7 +2,7 @@
 
 import { AdminHeader } from "@/components/admin-header"
 import {
-  SIMULATOR_TYPES,
+  SIMULATOR_TYPES_WITH_PARAMS,
   SIMULATOR_LABELS,
 } from "@/lib/dashboard-api"
 import Link from "next/link"
@@ -23,12 +23,12 @@ export default function SimuladoresPage() {
             Simuladores
           </h1>
           <p className="text-sm text-muted-foreground mt-1">
-            Lista de simuladores disponíveis. Clique em um para ver os parâmetros configurados.
+            Simuladores com parametros configuraveis no banco de dados.
           </p>
         </div>
 
         <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
-          {SIMULATOR_TYPES.map((type) => (
+          {SIMULATOR_TYPES_WITH_PARAMS.map((type) => (
             <Link key={type} href={`/simuladores/${type}`}>
               <Card className="transition-colors hover:bg-muted/50 cursor-pointer h-full">
                 <CardContent className="flex items-center gap-4 p-4">

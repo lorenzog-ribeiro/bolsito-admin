@@ -19,7 +19,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
-import { ArrowLeft, ChevronDown, ChevronRight, Loader2 } from "lucide-react"
+import { ArrowLeft, ChevronDown, ChevronRight, Loader2, Inbox } from "lucide-react"
 import Link from "next/link"
 
 const PAGE_SIZE = 50
@@ -152,6 +152,19 @@ export default function SimulacoesPorTipoPage() {
               <p className="text-destructive">Erro: {error}</p>
             </CardContent>
           </Card>
+        ) : simulations.length === 0 ? (
+          <Card>
+            <CardContent className="flex flex-col items-center justify-center gap-2 py-16">
+              <Inbox className="size-12 text-muted-foreground/50" />
+              <p className="text-lg font-medium">Nenhuma simulacao encontrada</p>
+              <p className="text-sm text-muted-foreground">
+                Ainda nao existem simulacoes deste tipo registradas.
+              </p>
+              <Button variant="outline" asChild className="mt-4">
+                <Link href="/simulacoes">Voltar para simulacoes</Link>
+              </Button>
+            </CardContent>
+          </Card>
         ) : (
           <Card>
             <CardContent className="p-0">
@@ -178,7 +191,7 @@ export default function SimulacoesPorTipoPage() {
               {totalPages > 1 && (
                 <div className="flex items-center justify-between border-t px-4 py-3">
                   <p className="text-sm text-muted-foreground">
-                    Página {page + 1} de {totalPages}
+                    Pagina {page + 1} de {totalPages}
                   </p>
                   <div className="flex gap-2">
                     <Button
@@ -195,7 +208,7 @@ export default function SimulacoesPorTipoPage() {
                       disabled={page >= totalPages - 1}
                       onClick={() => setPage((p) => Math.min(totalPages - 1, p + 1))}
                     >
-                      Próxima
+                      Proxima
                     </Button>
                   </div>
                 </div>

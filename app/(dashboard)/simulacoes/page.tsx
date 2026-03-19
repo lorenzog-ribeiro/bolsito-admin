@@ -15,6 +15,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Database, Download, Loader2 } from "lucide-react"
+import { toast } from "sonner"
 
 function escapeCsvField(value: string): string {
   if (value.includes(",") || value.includes('"') || value.includes("\n")) {
@@ -89,6 +90,10 @@ export default function SimulacoesPage() {
         startDate: exportStart,
         endDate: exportEnd,
       })
+      if (data.length === 0) {
+        toast.info("Nenhum dado encontrado para o periodo selecionado")
+        return
+      }
       const csv = toCsv(data)
       const blob = new Blob(["\uFEFF" + csv], { type: "text/csv;charset=utf-8" })
       const url = URL.createObjectURL(blob)
@@ -97,8 +102,11 @@ export default function SimulacoesPage() {
       a.download = `simulacoes-opt-in-${exportStart}-${exportEnd}.csv`
       a.click()
       URL.revokeObjectURL(url)
+      toast.success(`${data.length} registros exportados com sucesso`)
     } catch (e) {
-      setExportError(e instanceof Error ? e.message : "Erro ao exportar")
+      const errorMsg = e instanceof Error ? e.message : "Erro ao exportar"
+      setExportError(errorMsg)
+      toast.error(errorMsg)
     } finally {
       setExporting(false)
     }

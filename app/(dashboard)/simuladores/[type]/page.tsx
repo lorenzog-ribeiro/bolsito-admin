@@ -14,7 +14,9 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Switch } from "@/components/ui/switch"
 import { ArrowLeft, Loader2, Save } from "lucide-react"
+import { toast } from "sonner"
 import Link from "next/link"
+import { useTracking } from "@/hooks/use-tracking"
 
 type ParamValue = string | number | boolean | null | ParamRecord[] | ParamRecord
 interface ParamRecord {
@@ -75,9 +77,12 @@ function ParamRecordEditor({
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {Object.entries(local).map(([key, value]) => {
           if (key === "id" || key === "taxas") return null
+          // Skip complex objects - only show primitive values
+          if (typeof value === "object" && value !== null) return null
           const isBool = typeof value === "boolean"
           const isNum = typeof value === "number"
           const label = key.replace(/([A-Z])/g, " $1").replace(/^./, (s) => s.toUpperCase())
+          const inputValue = isBool ? undefined : (value ?? "")
           return (
             <div key={key} className="flex flex-col gap-2">
               <Label className="text-muted-foreground">{label}</Label>
@@ -101,7 +106,7 @@ function ParamRecordEditor({
                 <Input
                   type={isNum ? "number" : "text"}
                   step={isNum ? "any" : undefined}
-                  value={value ?? ""}
+                  value={inputValue as string | number}
                   onChange={(e) =>
                     setLocal((p) => ({
                       ...p,
@@ -137,7 +142,7 @@ function ParamRecordEditor({
           Salvar
         </Button>
       )}
-      {isParamRecordArray(taxas) && taxas.length > 0 && (
+      {taxas !== undefined && isParamRecordArray(taxas) && taxas.length > 0 && (
         <div className="mt-4 space-y-2 border-t pt-4">
           <p className="text-sm font-medium text-muted-foreground">Taxas</p>
           {taxas.map((t) => (
@@ -166,8 +171,8 @@ function TaxaEditor({
   onSave: (id: string, body: Record<string, unknown>) => Promise<void>
   canEdit: boolean
 }) {
-  const [parcela, setParcela] = useState(taxa.parcela ?? "")
-  const [taxaVal, setTaxaVal] = useState(taxa.taxa ?? "")
+  const [parcela, setParcela] = useState<string | number>(taxa.parcela as string | number ?? "")
+  const [taxaVal, setTaxaVal] = useState<string | number>(taxa.taxa as string | number ?? "")
   const [saving, setSaving] = useState(false)
 
   const handleSave = useCallback(async () => {
@@ -220,6 +225,7 @@ function TaxaEditor({
 export default function SimuladorParamsPage() {
   const params = useParams()
   const { token, user } = useAuth()
+  const { trackForm } = useTracking()
   const type = params.type as string
   const [data, setData] = useState<unknown>(null)
   const [loading, setLoading] = useState(true)
@@ -244,11 +250,19 @@ export default function SimuladorParamsPage() {
   const handleSave = useCallback(
     async (id: string, body: Record<string, unknown>) => {
       if (!token) return
-      const api = createDashboardApi(token)
-      await api.updateSimulatorParam(type, id, body)
-      await refresh()
+      try {
+        const api = createDashboardApi(token)
+        await api.updateSimulatorParam(type, id, body)
+        await refresh()
+        trackForm(`simulator_${type}_update`, true, { itemId: id, fields: Object.keys(body) })
+        toast.success("Parametro atualizado com sucesso")
+      } catch (e) {
+        trackForm(`simulator_${type}_update`, false, { itemId: id, error: e instanceof Error ? e.message : "unknown" })
+        toast.error(e instanceof Error ? e.message : "Erro ao salvar")
+        throw e
+      }
     },
-    [token, type, refresh]
+    [token, type, refresh, trackForm]
   )
 
   const label = SIMULATOR_LABELS[type] ?? type

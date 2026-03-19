@@ -11,16 +11,61 @@ import {
   Legend,
 } from "recharts"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
-import { getMonthlyActivity } from "@/lib/mock-data"
+import { Skeleton } from "@/components/ui/skeleton"
 
-export function OverviewChart() {
-  const data = getMonthlyActivity()
+interface ChartDataPoint {
+  label: string
+  value: number
+}
+
+interface OverviewChartProps {
+  data?: ChartDataPoint[]
+  isLoading?: boolean
+  title?: string
+  description?: string
+}
+
+export function OverviewChart({
+  data,
+  isLoading = false,
+  title = "Atividade Mensal",
+  description = "Simulacoes ao longo do tempo"
+}: OverviewChartProps) {
+  if (isLoading) {
+    return (
+      <Card>
+        <CardHeader>
+          <Skeleton className="h-5 w-32" />
+          <Skeleton className="h-4 w-48 mt-1" />
+        </CardHeader>
+        <CardContent>
+          <Skeleton className="h-[300px] w-full" />
+        </CardContent>
+      </Card>
+    )
+  }
+
+  if (!data || data.length === 0) {
+    return (
+      <Card>
+        <CardHeader>
+          <CardTitle>{title}</CardTitle>
+          <CardDescription>{description}</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="h-[300px] w-full flex items-center justify-center text-muted-foreground">
+            Nenhum dado disponivel
+          </div>
+        </CardContent>
+      </Card>
+    )
+  }
 
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Atividade Mensal</CardTitle>
-        <CardDescription>Simulacoes ao longo do tempo</CardDescription>
+        <CardTitle>{title}</CardTitle>
+        <CardDescription>{description}</CardDescription>
       </CardHeader>
       <CardContent>
         <div className="h-[300px] w-full">
@@ -34,7 +79,7 @@ export function OverviewChart() {
               </defs>
               <CartesianGrid strokeDasharray="3 3" className="stroke-border" />
               <XAxis
-                dataKey="mes"
+                dataKey="label"
                 tick={{ fontSize: 11 }}
                 className="fill-muted-foreground"
                 tickLine={false}
@@ -49,19 +94,20 @@ export function OverviewChart() {
               />
               <Tooltip
                 contentStyle={{
-                  backgroundColor: "oklch(0.16 0.015 230)",
-                  border: "1px solid oklch(0.24 0.02 230)",
+                  backgroundColor: "#1a1a1a",
+                  border: "1px solid #333",
                   borderRadius: "8px",
-                  color: "oklch(0.92 0.01 210)",
-                  fontSize: 12,
+                  color: "#ffffff",
+                  fontSize: 14,
+                  fontWeight: 500,
+                  padding: "8px 12px",
+                  boxShadow: "0 4px 12px rgb(0 0 0 / 0.3)",
                 }}
               />
-              <Legend
-                wrapperStyle={{ fontSize: 12 }}
-              />
+              <Legend wrapperStyle={{ fontSize: 12 }} />
               <Area
                 type="monotone"
-                dataKey="simulacoes"
+                dataKey="value"
                 name="Simulacoes"
                 stroke="oklch(0.60 0.15 170)"
                 fill="url(#simGrad)"
