@@ -3,7 +3,7 @@
 
 @custom-variant dark (&:is(.dark *));
 
-/* Paleta ESB: Azul #0E87C6 | Cinza #959CA1 | Laranja #F0A41F | Cinza Claro #F5F3EF */
+/* Paleta ESB: Azul #0E87C6 | Cinza #959CA1 | Laranja #FF8A00 | Cinza Claro #F5F3EF */
 :root {
   --background: oklch(0.97 0.007 80); /* #F5F3EF Cinza Claro */
   --foreground: oklch(0.35 0.01 250); /* derivado do Cinza */
@@ -17,15 +17,15 @@
   --secondary-foreground: oklch(0.25 0.01 250);
   --muted: oklch(0.94 0.005 80);
   --muted-foreground: oklch(0.65 0.01 250); /* #959CA1 Cinza */
-  --accent: oklch(0.74 0.16 75); /* #F0A41F Laranja */
-  --accent-foreground: oklch(0.25 0.02 75);
+  --accent: oklch(0.72 0.18 54); /* #FF8A00 Laranja */
+  --accent-foreground: oklch(0.25 0.04 54);
   --destructive: oklch(0.577 0.245 27.325);
   --destructive-foreground: oklch(0.577 0.245 27.325);
   --border: oklch(0.89 0.01 80);
   --input: oklch(0.89 0.01 80);
   --ring: oklch(0.54 0.13 235);
   --chart-1: oklch(0.54 0.13 235); /* Azul */
-  --chart-2: oklch(0.74 0.16 75); /* Laranja */
+  --chart-2: oklch(0.72 0.18 54); /* Laranja #FF8A00 */
   --chart-3: oklch(0.65 0.01 250); /* Cinza */
   --chart-4: oklch(0.60 0.12 200);
   --chart-5: oklch(0.70 0.14 140);

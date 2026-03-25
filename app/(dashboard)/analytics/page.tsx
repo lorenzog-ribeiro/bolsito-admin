@@ -806,13 +806,13 @@ export default function AnalyticsPage() {
                               }
                               className="text-xs"
                             >
-                              {event.type.replace(/_/g, " ")}
+                              {(event.type ?? "unknown").replace(/_/g, " ")}
                             </Badge>
                           </TableCell>
-                          <TableCell className="text-sm max-w-[150px] truncate" title={event.path}>
-                            {event.path}
+                          <TableCell className="text-sm max-w-[150px] truncate" title={event.path ?? ""}>
+                            {event.path ?? "-"}
                           </TableCell>
-                          <TableCell className="text-sm max-w-[150px] truncate" title={event.title}>
+                          <TableCell className="text-sm max-w-[150px] truncate" title={event.title ?? ""}>
                             {event.title || "-"}
                           </TableCell>
                           <TableCell className="text-right text-sm text-muted-foreground">
