@@ -13,6 +13,7 @@ import {
   Database,
   Image,
   BarChart3,
+  MessageSquare,
 } from "lucide-react"
 import { useAuth } from "@/lib/auth"
 import {
@@ -58,6 +59,11 @@ const navItems = [
     title: "Assets",
     href: "/assets",
     icon: Image,
+  },
+  {
+    title: "Comentarios",
+    href: "/comentarios",
+    icon: MessageSquare,
   },
   {
     title: "Permissoes",
