@@ -171,7 +171,53 @@ export function createDashboardApi(token: string) {
         { token }
       )
     },
+
+    // Comments Moderation
+    listComments: (params?: { page?: number; perPage?: number; status?: string }) => {
+      const q = new URLSearchParams()
+      if (params?.page) q.set("page", String(params.page))
+      if (params?.perPage) q.set("per_page", String(params.perPage))
+      if (params?.status) q.set("status", params.status)
+      const query = q.toString()
+      return apiFetch<CommentListResponse>(
+        `/blog/admin/comments${query ? `?${query}` : ""}`,
+        { token }
+      )
+    },
+
+    updateCommentStatus: (commentId: number, status: string) =>
+      apiFetch<Comment>(
+        `/blog/admin/comments/${commentId}/status`,
+        { method: "PATCH", body: JSON.stringify({ status }), token }
+      ),
+
+    deleteComment: (commentId: number) =>
+      apiFetch<void>(
+        `/blog/comments/${commentId}`,
+        { method: "DELETE", token }
+      ),
   }
+}
+
+export interface Comment {
+  id: number
+  postId: number
+  postSlug: string | null
+  postTitle: string | null
+  authorName: string
+  authorAvatarUrl: string | null
+  date: string
+  content: string
+  status: "approved" | "hold" | "spam" | "trash"
+  parentId: number
+}
+
+export interface CommentListResponse {
+  data: Comment[]
+  total: number
+  page: number
+  perPage: number
+  totalPages: number
 }
 
 export interface BlogTrackingStats {
