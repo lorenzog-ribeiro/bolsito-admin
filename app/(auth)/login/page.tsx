@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
@@ -43,8 +43,13 @@ export default function LoginPage() {
     defaultValues: { email: "", password: "" },
   })
 
+  useEffect(() => {
+    if (isAuthenticated) {
+      router.replace("/")
+    }
+  }, [isAuthenticated, router])
+
   if (isAuthenticated) {
-    router.replace("/")
     return null
   }
 

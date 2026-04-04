@@ -196,6 +196,29 @@ export function createDashboardApi(token: string) {
         `/blog/comments/${commentId}`,
         { method: "DELETE", token }
       ),
+
+    // Notifications
+    listNotifications: (status?: "unread" | "read") => {
+      const q = new URLSearchParams()
+      if (status) q.set("status", status)
+      const query = q.toString()
+      return apiFetch<NotificationsListResponse>(
+        `/notifications${query ? `?${query}` : ""}`,
+        { token }
+      )
+    },
+
+    markNotificationRead: (documentId: string) =>
+      apiFetch<{ ok: true }>(
+        `/notifications/${documentId}/read`,
+        { method: "PATCH", token }
+      ),
+
+    markAllNotificationsRead: () =>
+      apiFetch<{ ok: true; count: number }>(
+        `/notifications/read-all`,
+        { method: "PATCH", token }
+      ),
   }
 }
 
@@ -218,6 +241,28 @@ export interface CommentListResponse {
   page: number
   perPage: number
   totalPages: number
+}
+
+export interface Notification {
+  id: number
+  documentId: string
+  type: string
+  status: "unread" | "read"
+  payload: {
+    commentId?: number
+    commenterName?: string
+    commentExcerpt?: string
+    contentTitle?: string
+    contentUrl?: string
+    moderationUrl?: string
+  } | null
+  createdAt: string
+}
+
+export interface NotificationsListResponse {
+  data: Notification[]
+  total: number
+  unreadCount: number
 }
 
 export interface BlogTrackingStats {

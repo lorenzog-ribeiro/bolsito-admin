@@ -10,6 +10,7 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb"
+import { NotificationBell } from "@/components/notification-bell"
 
 interface BreadcrumbEntry {
   label: string
@@ -40,6 +41,9 @@ export function AdminHeader({ breadcrumbs }: { breadcrumbs: BreadcrumbEntry[] })
           })}
         </BreadcrumbList>
       </Breadcrumb>
+      <div className="ml-auto">
+        <NotificationBell />
+      </div>
     </header>
   )
 }

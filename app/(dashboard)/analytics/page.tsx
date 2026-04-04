@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState, useMemo, useCallback } from "react"
+import { useEffect, useState, useMemo, useCallback, useRef } from "react"
 import {
   Activity,
   FileBarChart2,
@@ -10,6 +10,7 @@ import {
   Filter,
   Users,
   Timer,
+  CalendarIcon,
 } from "lucide-react"
 import {
   AreaChart,
@@ -38,6 +39,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Badge } from "@/components/ui/badge"
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
+import { Calendar } from "@/components/ui/calendar"
 import { createDashboardApi, SIMULATOR_LABELS, type BlogTrackingStats } from "@/lib/dashboard-api"
 import { useAuth } from "@/lib/auth"
 import { formatDuration } from "@/lib/tracking"
@@ -56,7 +59,7 @@ const COLORS = [
   "#eab308", "#a855f7", "#ef4444",
 ]
 
-type DateRange = "7d" | "30d" | "90d" | "12m" | "all"
+type DateRange = "7d" | "30d" | "90d" | "this_month" | "last_month" | "12m" | "all" | "custom"
 
 const TOOLTIP_STYLE = {
   backgroundColor: "#1a1a1a",
@@ -69,14 +72,46 @@ const TOOLTIP_STYLE = {
   boxShadow: "0 4px 12px rgb(0 0 0 / 0.3)",
 }
 
+const STORAGE_KEY = "esb_analytics_daterange"
+
+function loadPersistedRange(): { range: DateRange; customStart?: string; customEnd?: string } {
+  if (typeof window === "undefined") return { range: "30d" }
+  try {
+    const raw = sessionStorage.getItem(STORAGE_KEY)
+    if (raw) return JSON.parse(raw)
+  } catch {}
+  return { range: "30d" }
+}
+
 export default function AnalyticsPage() {
   const { token } = useAuth()
   const [stats, setStats] = useState<DashboardStats | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
-  const [dateRange, setDateRange] = useState<DateRange>("30d")
+  const persisted = useRef(loadPersistedRange())
+  const [dateRange, setDateRange] = useState<DateRange>(persisted.current.range)
+  const [customStart, setCustomStart] = useState<Date | undefined>(
+    persisted.current.customStart ? new Date(persisted.current.customStart) : undefined,
+  )
+  const [customEnd, setCustomEnd] = useState<Date | undefined>(
+    persisted.current.customEnd ? new Date(persisted.current.customEnd) : undefined,
+  )
   const [blogStats, setBlogStats] = useState<BlogTrackingStats | null>(null)
   const [blogStatsLoading, setBlogStatsLoading] = useState(true)
+
+  // Persist to sessionStorage
+  useEffect(() => {
+    try {
+      sessionStorage.setItem(
+        STORAGE_KEY,
+        JSON.stringify({
+          range: dateRange,
+          customStart: customStart?.toISOString(),
+          customEnd: customEnd?.toISOString(),
+        }),
+      )
+    } catch {}
+  }, [dateRange, customStart, customEnd])
 
   const handleDateRangeChange = useCallback((value: DateRange) => {
     setDateRange(value)
@@ -89,7 +124,7 @@ export default function AnalyticsPage() {
     const api = createDashboardApi(token)
 
     // Calculate date range
-    const endDate = new Date()
+    let endDate = new Date()
     let startDate = new Date()
 
     switch (dateRange) {
@@ -102,11 +137,22 @@ export default function AnalyticsPage() {
       case "90d":
         startDate.setDate(startDate.getDate() - 90)
         break
+      case "this_month":
+        startDate = new Date(endDate.getFullYear(), endDate.getMonth(), 1)
+        break
+      case "last_month":
+        startDate = new Date(endDate.getFullYear(), endDate.getMonth() - 1, 1)
+        endDate = new Date(endDate.getFullYear(), endDate.getMonth(), 0, 23, 59, 59)
+        break
       case "12m":
         startDate.setMonth(startDate.getMonth() - 12)
         break
       case "all":
         startDate = new Date("2020-01-01")
+        break
+      case "custom":
+        if (customStart) startDate = customStart
+        if (customEnd) endDate = customEnd
         break
     }
 
@@ -143,7 +189,7 @@ export default function AnalyticsPage() {
       .finally(() => {
         setBlogStatsLoading(false)
       })
-  }, [token, dateRange])
+  }, [token, dateRange, customStart, customEnd])
 
   // Processed data
   const processedData = useMemo(() => {
@@ -242,20 +288,65 @@ export default function AnalyticsPage() {
             </p>
           </div>
 
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 flex-wrap">
             <Filter className="size-4 text-muted-foreground" />
             <Select value={dateRange} onValueChange={(v) => handleDateRangeChange(v as DateRange)}>
-              <SelectTrigger className="w-[140px]">
+              <SelectTrigger className="w-[160px]">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="7d">Ultimos 7 dias</SelectItem>
                 <SelectItem value="30d">Ultimos 30 dias</SelectItem>
                 <SelectItem value="90d">Ultimos 90 dias</SelectItem>
+                <SelectItem value="this_month">Este mês</SelectItem>
+                <SelectItem value="last_month">Mês passado</SelectItem>
                 <SelectItem value="12m">Ultimos 12 meses</SelectItem>
                 <SelectItem value="all">Todo periodo</SelectItem>
+                <SelectItem value="custom">Personalizado</SelectItem>
               </SelectContent>
             </Select>
+
+            {dateRange === "custom" && (
+              <div className="flex items-center gap-2">
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <Button variant="outline" size="sm" className="gap-1.5 text-xs">
+                      <CalendarIcon className="size-3.5" />
+                      {customStart
+                        ? customStart.toLocaleDateString("pt-BR")
+                        : "Inicio"}
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-auto p-0" align="start">
+                    <Calendar
+                      mode="single"
+                      selected={customStart}
+                      onSelect={(d) => setCustomStart(d ?? undefined)}
+                      disabled={(d) => d > new Date() || (customEnd ? d > customEnd : false)}
+                    />
+                  </PopoverContent>
+                </Popover>
+                <span className="text-xs text-muted-foreground">até</span>
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <Button variant="outline" size="sm" className="gap-1.5 text-xs">
+                      <CalendarIcon className="size-3.5" />
+                      {customEnd
+                        ? customEnd.toLocaleDateString("pt-BR")
+                        : "Fim"}
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-auto p-0" align="start">
+                    <Calendar
+                      mode="single"
+                      selected={customEnd}
+                      onSelect={(d) => setCustomEnd(d ?? undefined)}
+                      disabled={(d) => d > new Date() || (customStart ? d < customStart : false)}
+                    />
+                  </PopoverContent>
+                </Popover>
+              </div>
+            )}
           </div>
         </div>
 
