@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useCallback } from "react"
 import { toast } from "sonner"
+import { sanitizeComment } from "@/lib/sanitize"
 import {
   Check,
   X,
@@ -250,7 +251,8 @@ export default function ComentariosPage() {
 
                       <div
                         className="text-sm text-foreground/90 prose prose-sm max-w-none"
-                        dangerouslySetInnerHTML={{ __html: comment.content }}
+                        // FIX: sanitização de comentários contra XSS
+                        dangerouslySetInnerHTML={{ __html: sanitizeComment(comment.content) }}
                       />
 
                       {comment.parentId > 0 && (
