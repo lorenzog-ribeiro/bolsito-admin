@@ -134,7 +134,6 @@ export default function DashboardPage() {
 }
 
 function formatMonth(monthStr: string): string {
-  // monthStr format: "2026-03" or similar
   const [year, month] = monthStr.split("-")
   const monthNames = [
     "Jan", "Fev", "Mar", "Abr", "Mai", "Jun",
