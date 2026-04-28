@@ -52,6 +52,22 @@ export const RANKING_TYPES = [
   { id: "toll-passes", label: "Pedágios" },
 ] as const
 
+export interface SyncResult {
+  postsUpserted: number
+  postsSoftDeleted: number
+  durationMs: number
+}
+
+export interface SyncLog {
+  id: number
+  startedAt: string
+  finishedAt: string | null
+  status: "running" | "success" | "failed"
+  postsUpserted: number
+  postsSoftDeleted: number
+  error: string | null
+}
+
 export interface PlatformSimulation {
   id: number
   simulatorType: string
@@ -159,6 +175,12 @@ export function createDashboardApi(token: string) {
 
     images: () =>
       apiFetch<ImageItem[]>("/dashboard/images", { token }),
+
+    triggerPostSync: () =>
+      apiFetch<SyncResult>("/dashboard/sync/posts", { method: "POST", token }),
+
+    syncHistory: () =>
+      apiFetch<SyncLog[]>("/dashboard/sync/posts/status", { token }),
 
     // Blog Tracking Stats
     blogTrackingStats: (params?: { startDate?: string; endDate?: string }) => {
