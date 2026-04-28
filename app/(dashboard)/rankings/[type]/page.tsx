@@ -14,8 +14,6 @@ import { Skeleton } from "@/components/ui/skeleton"
 import { ArrowLeft, Loader2, Save, Inbox } from "lucide-react"
 import { toast } from "sonner"
 import Link from "next/link"
-import { useTracking } from "@/hooks/use-tracking"
-
 interface RankingItem {
   id: number
   nome?: string
@@ -204,7 +202,6 @@ function formatLabel(key: string): string {
 export default function RankingParamsPage() {
   const params = useParams()
   const { token, user } = useAuth()
-  const { trackAction, trackForm } = useTracking()
   const type = params.type as string
   const [data, setData] = useState<unknown>(null)
   const [loading, setLoading] = useState(true)
@@ -233,15 +230,13 @@ export default function RankingParamsPage() {
         const api = createDashboardApi(token)
         await api.updateRankingParam(type, String(id), body)
         await refresh()
-        trackForm(`ranking_${type}_update`, true, { itemId: id, fields: Object.keys(body) })
         toast.success("Parametro atualizado com sucesso")
       } catch (e) {
-        trackForm(`ranking_${type}_update`, false, { itemId: id, error: e instanceof Error ? e.message : "unknown" })
         toast.error(e instanceof Error ? e.message : "Erro ao salvar")
         throw e
       }
     },
-    [token, type, refresh, trackForm]
+    [token, type, refresh]
   )
 
   const ranking = RANKING_TYPES.find((r) => r.id === type)

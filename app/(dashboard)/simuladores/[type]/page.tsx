@@ -16,8 +16,6 @@ import { Switch } from "@/components/ui/switch"
 import { ArrowLeft, Loader2, Save } from "lucide-react"
 import { toast } from "sonner"
 import Link from "next/link"
-import { useTracking } from "@/hooks/use-tracking"
-
 type ParamValue = string | number | boolean | null | ParamRecord[] | ParamRecord
 interface ParamRecord {
   id?: number
@@ -225,7 +223,6 @@ function TaxaEditor({
 export default function SimuladorParamsPage() {
   const params = useParams()
   const { token, user } = useAuth()
-  const { trackForm } = useTracking()
   const type = params.type as string
   const [data, setData] = useState<unknown>(null)
   const [loading, setLoading] = useState(true)
@@ -254,15 +251,13 @@ export default function SimuladorParamsPage() {
         const api = createDashboardApi(token)
         await api.updateSimulatorParam(type, id, body)
         await refresh()
-        trackForm(`simulator_${type}_update`, true, { itemId: id, fields: Object.keys(body) })
         toast.success("Parametro atualizado com sucesso")
       } catch (e) {
-        trackForm(`simulator_${type}_update`, false, { itemId: id, error: e instanceof Error ? e.message : "unknown" })
         toast.error(e instanceof Error ? e.message : "Erro ao salvar")
         throw e
       }
     },
-    [token, type, refresh, trackForm]
+    [token, type, refresh]
   )
 
   const label = SIMULATOR_LABELS[type] ?? type

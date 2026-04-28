@@ -4,7 +4,6 @@ import { Analytics } from "@vercel/analytics/next"
 import { Toaster } from "sonner"
 import "./globals.css"
 import { AuthProvider } from "@/lib/auth"
-import { TrackingProvider } from "@/components/tracking-provider"
 
 const _geist = Geist({ subsets: ["latin"] })
 const _geistMono = Geist_Mono({ subsets: ["latin"] })
@@ -32,7 +31,7 @@ export default function RootLayout({
     <html lang="pt-BR" className="light">
       <body className="font-sans antialiased">
         <AuthProvider>
-          <TrackingProvider>{children}</TrackingProvider>
+          {children}
         </AuthProvider>
         <Toaster position="top-right" richColors closeButton />
         <Analytics />
