@@ -628,7 +628,7 @@ export default function AnalyticsPage() {
           <div className="flex items-center gap-2">
             <MousePointerClick className="size-5 text-primary" />
             <h2 className="text-xl font-semibold">Tracking do Blog</h2>
-            <span className="text-xs text-muted-foreground">(educandoseubolso.com.br)</span>
+            <span className="text-xs text-muted-foreground">(educandoseubolso.blog.br)</span>
           </div>
 
           {/* Blog Tracking KPIs */}
